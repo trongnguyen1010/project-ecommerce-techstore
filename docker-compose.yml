@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  # Database PostgreSQL
+  postgres:
+    image: postgres:16
+    container_name: ecommerce_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: ecommerce_store
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # PgAdmin (Giao diện quản lý DB - Dùng cái này cho dễ nhìn thay vì gõ lệnh)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_ui
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

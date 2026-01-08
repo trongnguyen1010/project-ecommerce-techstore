@@ -1,0 +1,10 @@
+### Tạo sản phẩm
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 15 Pro Max",
+  "price": 30000000,
+  "stock": 50,
+  "categoryId": 1
+}

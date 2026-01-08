@@ -1,0 +1,102 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Bảng Người dùng (Khách hàng)
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String?   @unique
+  password  String
+  fullName  String?
+  phone     String?  @unique
+  role      String   @default("USER") // USER hoặc ADMIN
+
+  orders    Order[]   // 1 người có nhiều đơn hàng
+  addresses Address[] // 1 người có nhiều địa chỉ
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Bảng Sổ địa chỉ
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  fullName  String
+  phone     String
+  address   String
+  isDefault Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+// 3. Bảng Sản phẩm (Giữ nguyên)
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2) // Dùng Decimal cho tiền tệ chính xác
+  stock       Int
+  images      String[]
+  
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  orderItems  OrderItem[] // Liên kết ngược để biết SP nằm trong đơn nào
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 4. Bảng Danh mục (Giữ nguyên)
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// 5. Bảng Đơn hàng
+model Order {
+  id          Int      @id @default(autoincrement())
+  
+  // Thông tin người nhận tại thời điểm đặt (Snapshot)
+  fullName    String
+  phone       String
+  address     String
+  
+  totalAmount Decimal  @db.Decimal(10, 2)
+  status      String   @default("PENDING") // PENDING, PAID, SHIPPED, CANCELLED
+
+  // Liên kết người dùng (Có thể null nếu khách vãng lai mua không cần login)
+  userId      Int?     
+  user        User?    @relation(fields: [userId], references: [id])
+
+  items       OrderItem[] // Danh sách món hàng trong đơn
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 6. Bảng Chi tiết đơn hàng (Lưu từng món trong giỏ)
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) // Giá tại thời điểm mua
+}
