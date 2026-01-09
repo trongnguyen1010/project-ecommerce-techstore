@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Product } from '../apis/product.api';
+import toast from 'react-hot-toast';
 
 // Định nghĩa kiểu dữ liệu cho 1 món hàng trong giỏ (kế thừa Product và thêm số lượng)
 export interface CartItem extends Product {
@@ -37,9 +38,11 @@ export const useCartStore = create<CartState>()(
                     :item
                 )
             });
+            toast.success('Đã tăng số lượng sản phẩm!');
         }else{
             //neu chua co -> them moi
             set({ items: [...items, {...product, quantity: 1}] });
+            toast.success('Đã thêm vào giỏ hàng!');
         }
       },
 

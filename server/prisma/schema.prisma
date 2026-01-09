@@ -39,7 +39,7 @@ model Address {
   createdAt DateTime @default(now())
 }
 
-// 3. Bảng Sản phẩm (Giữ nguyên)
+// 3. Bảng Sản phẩm 
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
@@ -52,6 +52,8 @@ model Product {
   category    Category @relation(fields: [categoryId], references: [id])
   
   orderItems  OrderItem[] // Liên kết ngược để biết SP nằm trong đơn nào
+
+  isDeleted   Boolean  @default(false)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -83,7 +85,7 @@ model Order {
   user        User?    @relation(fields: [userId], references: [id])
 
   items       OrderItem[] // Danh sách món hàng trong đơn
-
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -99,4 +101,5 @@ model OrderItem {
   
   quantity  Int
   price     Decimal @db.Decimal(10, 2) // Giá tại thời điểm mua
+  
 }

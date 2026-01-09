@@ -7,17 +7,27 @@ const api = axios.create({
 
 // Định nghĩa kiểu dữ liệu cho Product (TypeScript)
 export interface Product {
-  description: string;
   id: number;
   name: string;
-  price: string; // Lưu ý: Decimal của Prisma trả về string ở JSON
+  price: string | number; // API trả về có thể là số hoặc chuỗi
+  description: string;
   stock: number;
   images: string[];
+  categoryId: number;
+  category?: { 
+    id: number;
+    name: string;
+  };
 }
 
-// Hàm gọi API lấy danh sách
-export const getProducts = async () => {
-  const response = await api.get<Product[]>('/products');
+// Hàm gọi API lấy danh sách, cho phép truyền params vào
+export const getProducts = async (categoryId?: number, search?: string) : Promise<Product[]> => {
+  const response = await api.get('/products', {
+    params: {
+      category: categoryId,
+      search: search
+    }
+  });
   return response.data;
 };
 

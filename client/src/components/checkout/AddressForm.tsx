@@ -10,9 +10,14 @@ export interface AddressFormData {
 interface Props {
   onSubmit: (data: AddressFormData) => void;
   isSubmitting: boolean;
+  initialData?: {
+    fullName?: string;
+    phone?: string;
+    address?: string;
+  };
 }
 
-export default function AddressForm({ onSubmit, isSubmitting }: Props) {
+export default function AddressForm({ onSubmit, isSubmitting, initialData }: Props) {
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,7 +49,8 @@ export default function AddressForm({ onSubmit, isSubmitting }: Props) {
                     <input 
                     required
                     name="fullName"
-                    type="text" 
+                    type="text"
+                    defaultValue={initialData?.fullName || ''} //Thêm defaultValue để tự điền
                     placeholder="Ví dụ: Nguyễn Văn A"
                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                     />
@@ -59,8 +65,9 @@ export default function AddressForm({ onSubmit, isSubmitting }: Props) {
                     <input 
                     required
                     name="phone"
-                    type="tel" 
-                    placeholder="Ví dụ: 0912345678"
+                    type="tel"
+                    defaultValue={initialData?.phone || ''} // thêm defauValue 
+                    placeholder="nhập số điện thoại của bạn"
                     className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                     />
                 </div>
@@ -74,6 +81,7 @@ export default function AddressForm({ onSubmit, isSubmitting }: Props) {
                     required
                     name="address"
                     rows={3}
+                    defaultValue={initialData?.address || ''} // thêm defauValue
                     placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện..."
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 ></textarea>

@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('orders')
 export class OrdersController {
@@ -12,25 +14,28 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
-  // 2. API Lấy danh sách đơn hàng (Dùng để test xem đã tạo được chưa)
+  //API MỚI: Lấy lịch sử mua hàng
+  @UseGuards(AuthGuard('jwt')) // Bắt buộc phải có Token mới vào được
+  @Get('me')
+  getMyOrders(@Request() req) {
+    //req.user được tạo ra từ jwtstrategy
+    const userId =  req.user.userId;
+    return this.ordersService.findByUser(userId);
+  }
+
+  // API cho Admin  : xem all đơn hàng
+  @UseGuards(AuthGuard('jwt'), RolesGuard) // phải có token + là admin
   @Get()
   findAll() {
     return this.ordersService.findAll();
   }
 
-  // --- Tạm thời bỏ qua các hàm dưới đây vì Service chưa viết logic ---
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.ordersService.findOne(+id);
-  // }
+  //API cho Admin : cập nhật trạng thái đơn
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body('status') status: string){
+    return this.ordersService.updateStatus(+id, status);
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-  //   return this.ordersService.update(+id, updateOrderDto);
-  // }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.ordersService.remove(+id);
-  // }
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import Header from './components/Header';
@@ -6,26 +6,48 @@ import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import OrderHistoryPage from './pages/OrderHistoryPage';
+import { Toaster } from 'react-hot-toast';
+
+// Import Admin Pages & Layout
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
+import AdminProductsPage from './pages/admin/AdminProductsPage';
+import AdminProductFormPage from './pages/admin/AdminProductFormPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminLayout from './layouts/AdminLayout';
 
 function App() {
   return (
     <BrowserRouter>
-    <Header/>
+    {/* <Header/> */}
+      <Toaster position="top-center" reverseOrder={false} />
       <Routes>
-        {/* Đường dẫn trang chủ */}
-        <Route path="/" element={<HomePage />} />
-          
-        {/* Đường dẫn chi tiết (dấu :id nghĩa là id thay đổi động) */}
-        <Route path="/product/:id" element={<ProductDetailPage />} />
-          
-        {/* giỏ hàng */}
-        <Route path="/cart" element={<CartPage />} />
 
-        <Route path="/checkout" element={<CheckoutPage />} />
+        {/* --- KHU VỰC KHÁCH HÀNG (Header chung) --- */}
+        <Route element={<> <Header/> <Outlet/> </>}>
+          <Route path="/" element={<HomePage />} />
+          {/* Đường dẫn chi tiết (dấu :id nghĩa là id thay đổi động) */}
+          <Route path="/products/:id" element={<ProductDetailPage />} /> 
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/orders" element={<OrderHistoryPage />} />
+        </Route>
 
-        <Route path="/login" element={<LoginPage />} />
+        {/* --- KHU VỰC ADMIN (Dùng AdminLayout riêng) --- */}
+        <Route path="/admin" element={<AdminLayout />}>
+          {/* Mặc định vào /admin thì nhảy tới Dashboard */}
+          <Route index element={<AdminDashboardPage />} />
+        
+          <Route path="orders" element={<AdminOrdersPage />} />
+          <Route path="products" element={<AdminProductsPage />} />
 
-        <Route path="/register" element={<RegisterPage />} />
+          <Route path="products/new" element={<AdminProductFormPage />} />
+          <Route path="products/edit/:id" element={<AdminProductFormPage />} />
+
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+        </Route>
 
       </Routes>
     </BrowserRouter>

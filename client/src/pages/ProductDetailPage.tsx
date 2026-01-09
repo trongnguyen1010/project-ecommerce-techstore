@@ -20,7 +20,7 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (product) {
       addToCart(product);
-      alert(`Đã thêm ${product.name} vào giỏ!`);
+      // alert(`Đã thêm ${product.name} vào giỏ!`);
     }
   };
 

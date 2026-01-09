@@ -66,4 +66,25 @@ export class OrdersService {
       orderBy: { createdAt: 'desc' }
     });
   }
+
+  // Hàm lấy đơn hàng của 1 user cụ thể
+  async findByUser(userId: number) {
+    return this.prisma.order.findMany({
+      where: { userId: userId }, // Chỉ lấy đơn có userId trùng khớp
+      include: { 
+        items: { 
+          include: { product: true } // Lấy kèm chi tiết sản phẩm để hiển thị ảnh/tên
+        } 
+      },
+      orderBy: { createdAt: 'desc' } // Đơn mới nhất lên đầu
+    });
+  }
+
+  //Hàm cập nhật trạng thái đơn hàng
+  async updateStatus(id : number, status: string) {
+    return this.prisma.order.update({
+      where: { id },
+      data: {status},
+    })
+  }
 }

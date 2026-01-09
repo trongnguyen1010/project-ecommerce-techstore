@@ -3,12 +3,13 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '../../prisma/prisma.module'; 
 import { JwtModule } from '@nestjs/jwt'; 
+import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
     PrismaModule, // Để dùng được PrismaService
     
-    // 2. CẤU HÌNH JWT MODULE (Đây là đoạn bạn đang thiếu)
+    // 2. CẤU HÌNH JWT MODULE
     JwtModule.register({
       global: true, 
       secret: 'SECRET_KEY_NAY_PHAI_BAO_MAT', // Sau này nên để trong file .env
@@ -16,6 +17,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy], //thêm JwtStrategy
 })
 export class AuthModule {}

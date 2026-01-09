@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ShoppingCart, Store, User, LogOut } from 'lucide-react';
+import { ShoppingCart, Store, User, LogOut, Package } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
 import { useAuthStore } from '../stores/useAuthStore';
 
@@ -32,13 +32,27 @@ export default function Header() {
           {/* Menu User: Đã đăng nhập vs Chưa đăng nhập */}
           {user ? (
             <div className="flex items-center gap-4">
+              {/* NẾU LÀ ADMIN THÌ HIỆN LINK VÀO DASHBOARD */}
+              {user.role === 'ADMIN' && (
+                <Link to="/admin/dashboard" className="text-red-600 font-bold relative p-2 hover:bg-gray-200 rounded-full transition">
+                  Trang quản trị
+                </Link>
+              )}
               <span className="text-sm font-medium text-gray-700 hidden md:block">
                 Hi, {user.fullName}
               </span>
+              {/* Nút vào Lịch sử đơn hàng */}
+              <Link 
+              to="/orders" 
+              className="text-gray-500 hover:text-blue-600 transition" 
+              title="Đơn hàng của tôi"
+              >
+                <Package size={20} />
+              </Link>
               <button 
-                onClick={handleLogout}
-                className="text-gray-500 hover:text-red-500 transition" 
-                title="Đăng xuất"
+              onClick={handleLogout}
+              className="text-gray-500 hover:text-red-500 transition" 
+              title="Đăng xuất"
               >
                 <LogOut size={20} />
               </button>

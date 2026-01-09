@@ -1,14 +1,17 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Phone } from 'lucide-react';
 import { useCartStore } from '../stores/useCartStore';
 import AddressForm, { type AddressFormData } from '../components/checkout/AddressForm';
 import { createOrder } from '../apis/order.api';
 import { useState } from 'react';
 import OrderSuccessModal from '../components/checkout/OrderSuccessModal';
+import { useAuthStore } from '../stores/useAuthStore';
+import toast from 'react-hot-toast';
 
 export default function CheckoutPage() {
     const navigate = useNavigate();
     const { items, totalPrice, clearCart } = useCartStore();
+    const { user } = useAuthStore(); // lấy thông tin user nếu đã login
 
     // Tạo state lưu mã đơn hàng thành công (nếu có mã -> hiện modal)
     const [successOrderId, setSuccessOrderId] = useState<number | null>(null);
@@ -30,31 +33,39 @@ export default function CheckoutPage() {
             fullName: formData.fullName,
             phone: formData.phone,
             address: formData.address,
+            userId : user ? user.id : undefined, //thêm userID, gắn đơn hàng với tài khoản
             items: items.map((item) => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: Number(item.price), // <--- CHẮC CHẮN LÀ SỐ
+                productId: item.id,
+                quantity: item.quantity,
+                price: Number(item.price), // CHẮC CHẮN LÀ SỐ
             })),
         };
         
-        console.log("Dữ liệu gửi đi:", orderPayload);
+        // console.log("Dữ liệu gửi đi:", orderPayload);
 
-        // 1. Gọi API (Lưu kết quả vào biến result)
+        // Gọi API (Lưu kết quả vào biến result)
         const result = await createOrder(orderPayload);
 
         clearCart(); // Xóa giỏ hàng
+        toast.success('Đặt hàng thành công!');
         setSuccessOrderId(result.id); // Lưu ID đơn hàng
 
         } catch (error: any) {
         console.error("Lỗi chi tiết:", error);
         
-        // THÊM ĐOẠN NÀY ĐỂ HIỆN LỖI RÕ RÀNG
+        // // THÊM ĐOẠN NÀY ĐỂ HIỆN LỖI RÕ RÀNG
+        // if (error.response) {
+        //     // Lỗi từ Backend trả về (400, 500)
+        //     alert(`Lỗi Backend: ${JSON.stringify(error.response.data.message)}`);
+        // } else {
+        //     // Lỗi mạng hoặc code React
+        //     alert(`Lỗi: ${error.message}`);
+        // }
+        // Thay alert bằng toast.error
         if (error.response) {
-            // Lỗi từ Backend trả về (400, 500)
-            alert(`Lỗi Backend: ${JSON.stringify(error.response.data.message)}`);
+            toast.error(`Lỗi: ${JSON.stringify(error.response.data.message)}`);
         } else {
-            // Lỗi mạng hoặc code React
-            alert(`Lỗi: ${error.message}`);
+            toast.error('Có lỗi xảy ra khi đặt hàng');
         }
         }
     };
@@ -70,7 +81,16 @@ export default function CheckoutPage() {
                 <Link to="/cart" className="inline-flex items-center text-gray-500 hover:text-blue-600 mb-4 transition">
                     <ArrowLeft size={18} className="mr-1" /> Quay lại giỏ hàng
                 </Link>
-                <AddressForm onSubmit={handlePlaceOrder} isSubmitting={false} />
+                <AddressForm 
+                onSubmit={handlePlaceOrder} 
+                isSubmitting={false} 
+                // tự động điền inf nếu đã login
+                initialData={{
+                    fullName : user ?.fullName || '',
+                    phone : user?.phone || '',
+                    // address : user?.address // dùng sau nếu có sổ ghi lại địa chỉ  
+                }}
+                />
                 </div>
 
                 {/* CỘT PHẢI: TÓM TẮT ĐƠN HÀNG */}

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -19,4 +19,8 @@ export class CreateProductDto {
 
   @IsNumber()
   categoryId: number; // Quan trọng: Sản phẩm phải thuộc về 1 danh mục
+
+  @IsOptional()
+  @IsArray()
+  images?: string[]; // Mảng các link ảnh (URL text)
 }
