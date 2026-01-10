@@ -24,18 +24,18 @@ export class OrdersService {
         }
       }
 
-      // BƯỚC 2: Tính tổng tiền
+      // Tính tổng tiền
       const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-      // BƯỚC 3: Tạo Đơn hàng (Order) & Chi tiết đơn (OrderItems) cùng lúc
+      // Tạo Đơn hàng (Order) & Chi tiết đơn (OrderItems) cùng lúc
       const order = await tx.order.create({
         data: {
-          ...customerInfo, // Gồm: fullName, phone, address
+          ...customerInfo, // fullName, phone, address
           userId: userId || null, 
           totalAmount: totalAmount,
           status: 'PENDING',
           
-          // Prisma cho phép tạo luôn bảng con (OrderItem) lồng vào đây
+          // Prisma cho phép tạo luôn bảng con (OrderItem) lồng vào
           items: {
             create: items.map((item) => ({
               productId: item.productId,
@@ -47,7 +47,7 @@ export class OrdersService {
         include: { items: true }, // Trả về kết quả kèm chi tiết để Frontend hiển thị
       });
 
-      // BƯỚC 4: Trừ tồn kho (Stock)
+      //Trừ tồn kho (Stock)
       for (const item of items) {
         await tx.product.update({
           where: { id: item.productId },
@@ -86,5 +86,32 @@ export class OrdersService {
       where: { id },
       data: {status},
     })
+  }
+
+  // Lấy chi tiết 1 đơn hàng (Kèm tt liên quan)
+  async findOne(id: number) {
+    return this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        user: { select: { id: true, email: true, fullName: true } }, // Lấy thông tin người mua
+        items: {
+          include: { product: true } // Lấy thông tin sản phẩm
+        }
+      }
+    });
+  }
+
+  // Cập nhật thông tin đơn hàng (Info & Status)
+  async update(id: number, data: any) {
+    return this.prisma.order.update({
+      where: { id },
+      data: {
+        status: data.status,
+        // Cho phép sửa thông tin nhận hàng
+        fullName: data.fullName,
+        phone: data.phone,
+        address: data.address,
+      },
+    });
   }
 }

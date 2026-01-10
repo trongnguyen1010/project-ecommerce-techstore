@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Request, Patch, Param, Put } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -35,6 +35,20 @@ export class OrdersController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: string){
     return this.ordersService.updateStatus(+id, status);
+  }
+
+  // Admin xem chi tiết đơn
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.ordersService.findOne(+id);
+  }
+
+  // Admin cập nhật đơn (status + inf giao hàng)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Put(':id') // Dùng PUT để cập nhật nhiều trường
+  update(@Param('id') id: string, @Body() body: any) {
+    return this.ordersService.update(+id, body);
   }
 
 

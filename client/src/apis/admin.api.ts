@@ -27,3 +27,19 @@ export const getDashboardStats = async (token: string) => {
   });
   return response.data;
 };
+
+// Lấy chi tiết 1 đơn
+export const getOrderById = async (token: string, id: number) => {
+  const response = await api.get(`/orders/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// Cập nhật thông tin đơn
+export const updateOrder = async (token: string, id: number, data: any) => {
+  const response = await api.put(`/orders/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};

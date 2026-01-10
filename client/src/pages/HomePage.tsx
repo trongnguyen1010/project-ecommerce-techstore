@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Search, Filter, X } from 'lucide-react';
+import { ShoppingCart, Search, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProducts, type Product } from '../apis/product.api';
 import { getCategories, type Category } from '../apis/category.api'; // Import Category API
 import { useCartStore } from '../stores/useCartStore';
@@ -12,6 +12,10 @@ export default function HomePage() {
   // State bộ lọc
   const [selectedCat, setSelectedCat] = useState<number | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // State phân trang
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   
   const addToCart = useCartStore((state) => state.addToCart);
 
@@ -28,16 +32,30 @@ export default function HomePage() {
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [selectedCat, searchTerm]);
+  }, [selectedCat, searchTerm, page]); // Cập nhật để lắng nghe thêm thay đổi của page
 
   const fetchProducts = async () => {
     try {
-      const data = await getProducts(selectedCat, searchTerm);
-      setProducts(data);
+      const response = await getProducts(selectedCat, searchTerm, page);
+      // Cập nhật state từ cấu trúc mới { data, meta }
+      setProducts(response.data); 
+      setTotalPages(response.meta.last_page);
+      
     } catch (error) {
       console.error(error);
     }
   };
+
+  // Khi đổi category hoặc search thì phải reset về trang 1
+  const handleFilterChange = (catId?: number) => {
+      setSelectedCat(catId);
+      setPage(1); // Reset về trang 1
+  }
+  
+  const handleSearchChange = (val: string) => {
+      setSearchTerm(val);
+      setPage(1); // Reset về trang 1
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen pb-10">
@@ -65,7 +83,7 @@ export default function HomePage() {
           {/* Bộ lọc danh mục */}
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
             <button 
-              onClick={() => setSelectedCat(undefined)}
+              onClick={() => setSelectedCat(undefined)} //
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition border
                 ${!selectedCat ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200'}`}
             >
@@ -74,7 +92,7 @@ export default function HomePage() {
             {categories.map(cat => (
               <button 
                 key={cat.id}
-                onClick={() => setSelectedCat(cat.id)}
+                onClick={() => handleFilterChange(cat.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition border
                   ${selectedCat === cat.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200'}`}
               >
@@ -90,7 +108,7 @@ export default function HomePage() {
               placeholder="Tìm kiếm sản phẩm..." 
               className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-blue-500 outline-none transition"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
             <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
             {searchTerm && (
@@ -160,6 +178,31 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      {/* --- THANH PHÂN TRANG --- */}
+        {products.length > 0 && (
+          <div className="flex justify-center items-center gap-4 mt-12">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="p-2 border rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            
+            <span className="font-bold text-gray-700">
+              Trang {page} / {totalPages}
+            </span>
+
+            <button 
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="p-2 border rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+        )}
     </div>
   );
 }

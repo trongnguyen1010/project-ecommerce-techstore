@@ -1,8 +1,16 @@
 import { Trash2, Minus, Plus } from 'lucide-react';
 import { type CartItem as CartItemType, useCartStore } from '../../stores/useCartStore';
 
+// upadate kiểu cho props
 interface Props {
-  item: CartItemType;
+  item: {
+    id: number;       // Đây là CartItem ID (để xóa/sửa)
+    productId: number;// Đây là Product ID (để dẫn link)
+    name: string;
+    price: number;
+    images: string[];
+    quantity: number;
+  };
 }
 
 export default function CartItem({ item }: Props) {
@@ -32,6 +40,7 @@ export default function CartItem({ item }: Props) {
         <div className="flex items-center gap-3">
             <div className="flex items-center border rounded-lg">
                 <button 
+                // Gọi decreaseQuantity với item.id (CartItem ID)
                 onClick={() => decreaseQuantity(item.id)}
                 className="p-2 hover:bg-gray-100 text-gray-600 transition"
                 >
@@ -39,7 +48,8 @@ export default function CartItem({ item }: Props) {
                 </button>
                 <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
                 <button 
-                onClick={() => addToCart(item)} // Tận dụng hàm addToCart để tăng số lượng
+                // onClick={() => addToCart(item)} // addToCart để tăng số lượng
+                onClick={() => addToCart({ id: item.productId, name: item.name, price: item.price, images: item.images })}
                 className="p-2 hover:bg-gray-100 text-gray-600 transition"
                 >
                 <Plus size={16} />
@@ -48,6 +58,7 @@ export default function CartItem({ item }: Props) {
 
           {/* Nút Xóa */}
             <button 
+            // Xóa theo item.id (CartItem ID)
             onClick={() => removeFromCart(item.id)}
             className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
             title="Xóa sản phẩm"

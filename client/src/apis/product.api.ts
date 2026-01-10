@@ -21,11 +21,12 @@ export interface Product {
 }
 
 // Hàm gọi API lấy danh sách, cho phép truyền params vào
-export const getProducts = async (categoryId?: number, search?: string) : Promise<Product[]> => {
+export const getProducts = async (categoryId?: number, search?: string, page: number = 1) : Promise<any> => {
   const response = await api.get('/products', {
     params: {
       category: categoryId,
-      search: search
+      search: search,
+      page: page,
     }
   });
   return response.data;

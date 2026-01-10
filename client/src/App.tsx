@@ -15,6 +15,8 @@ import AdminProductsPage from './pages/admin/AdminProductsPage';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminLayout from './layouts/AdminLayout';
+import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -33,23 +35,25 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/orders" element={<OrderHistoryPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
         {/* --- KHU VỰC ADMIN (Dùng AdminLayout riêng) --- */}
         <Route path="/admin" element={<AdminLayout />}>
           {/* Mặc định vào /admin thì nhảy tới Dashboard */}
           <Route index element={<AdminDashboardPage />} />
-        
           <Route path="orders" element={<AdminOrdersPage />} />
+          <Route path="orders/:id" element={<AdminOrderDetailPage />} />
           <Route path="products" element={<AdminProductsPage />} />
-
           <Route path="products/new" element={<AdminProductFormPage />} />
           <Route path="products/edit/:id" element={<AdminProductFormPage />} />
 
           <Route path="dashboard" element={<AdminDashboardPage />} />
         </Route>
-
-      </Routes>
+        
+        <Route path="*" element={<div className="text-center p-10">
+          404 - Trang không tồn tại!</div>} />
+        </Routes>
     </BrowserRouter>
   );
 }

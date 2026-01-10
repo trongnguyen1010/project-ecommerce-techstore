@@ -27,7 +27,7 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          // Giao diện khi có hàng (Chia layout 2 cột: 8 phần danh sách - 4 phần tổng tiền)
+          // Giao diện khi có hàng (Chia layout 2 cột)
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Cột Trái: Danh sách sản phẩm */}
             <div className="lg:col-span-8 bg-white p-6 rounded-xl shadow-sm border">

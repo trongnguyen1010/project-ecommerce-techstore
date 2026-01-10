@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { getAllOrders, updateOrderStatus } from '../../apis/admin.api';
 import { Package, Check, Truck, X } from 'lucide-react';
@@ -108,6 +108,12 @@ export default function AdminOrdersPage() {
                         <X size={14} /> Hủy
                         </button>
                         )}
+                        <Link 
+                        to={`/admin/orders/${order.id}`}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm flex items-center gap-1 transition"
+                        >
+                            Chi tiết
+                        </Link>
                     </td>
                     </tr>
                 ))}

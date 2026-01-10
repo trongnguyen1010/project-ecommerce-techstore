@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Plus, Trash2, Image as ImageIcon } from 'lucide-react'; // Thêm icon
+import { ArrowLeft, Save, Plus, Trash2, Image as ImageIcon,
+         Upload, X, Loader2 } from 'lucide-react'; 
 import { useAuthStore } from '../../stores/useAuthStore';
 import { createProduct, updateProduct } from '../../apis/admin.product.api';
 import { getProduct } from '../../apis/product.api';
-import { getCategories, type Category } from '../../apis/category.api';
+import { getCategories, type Category, createCategory } from '../../apis/category.api';
 import toast from 'react-hot-toast';
+import { uploadImage } from '../../apis/upload.api';
 
 export default function AdminProductFormPage() {
     const { token, user } = useAuthStore();
@@ -59,22 +61,48 @@ export default function AdminProductFormPage() {
         initData();
     }, [token, id, isEditMode]);
 
-    // --- LOGIC XỬ LÝ NHIỀU ẢNH ---
-    const handleImageChange = (index: number, value: string) => {
-        const newImages = [...formData.images];
-        newImages[index] = value;
-        setFormData({ ...formData, images: newImages });
+
+    // --- STATE & LOGIC UPLOAD ẢNH MỚI ---
+    const [isUploading, setIsUploading] = useState(false); // State loading khi up ảnh
+
+    // Hàm xử lý khi chọn file từ máy tính
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate dung lượng (Ví dụ 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('File quá lớn! Vui lòng chọn ảnh dưới 5MB');
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            // Gọi API Upload
+            const url = await uploadImage(token!, file);
+            
+            // Thêm URL vừa nhận được vào mảng images
+            setFormData(prev => ({
+                ...prev,
+                images: [...prev.images, url]
+            }));
+            
+            toast.success('Tải ảnh lên thành công!');
+        } catch (error) {
+            console.error(error);
+            toast.error('Lỗi tải ảnh lên (Check server/Cloudinary)');
+        } finally {
+            setIsUploading(false);
+            e.target.value = ''; // Reset input để chọn lại được file cũ nếu muốn
+        }
     };
 
-    const addImageField = () => {
-        setFormData({ ...formData, images: [...formData.images, ''] });
-    };
-
-    const removeImageField = (index: number) => {
+    // Hàm xóa ảnh khỏi danh sách
+    const handleRemoveImage = (index: number) => {
         const newImages = formData.images.filter((_, i) => i !== index);
         setFormData({ ...formData, images: newImages });
     };
-    // -----------------------------
+    // ------------------------------------
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -111,6 +139,27 @@ export default function AdminProductFormPage() {
             setLoading(false);
         }
     };
+
+    // Hàm tạo nhanh danh mục
+    const handleQuickCreateCategory = async () => {
+        const newName = window.prompt('Nhập tên danh mục mới:');
+        if (!newName || newName.trim() === '') return; // Người dùng bấm Hủy hoặc không nhập gì
+
+        try {
+            // 1. Gọi API tạo
+            const newCat = await createCategory(token!, newName);
+            
+            // 2. Thêm vào danh sách hiện tại
+            setCategories([...categories, newCat]);
+            
+            // 3. Tự động chọn luôn danh mục vừa tạo
+            setFormData({ ...formData, categoryId: String(newCat.id) });
+            
+            toast.success(`Đã tạo danh mục: ${newName}`);
+        } catch (error) {
+            toast.error('Lỗi tạo danh mục!');
+        }
+    }
 
     return (
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-8">
@@ -162,7 +211,7 @@ export default function AdminProductFormPage() {
 
                     <div>
                         <label htmlFor="product-category" className="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
-                        <select 
+                        {/* <select 
                             id="product-category"
                             required
                             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white"
@@ -173,66 +222,80 @@ export default function AdminProductFormPage() {
                             {categories.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.name}</option>
                             ))}
-                        </select>
+                        </select> */}
+                        <div className="flex gap-2">
+                            <select 
+                                id="product-category"
+                                required
+                                className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                                value={formData.categoryId}
+                                onChange={e => setFormData({...formData, categoryId: e.target.value})}
+                            >
+                                <option value="">-- Chọn danh mục --</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                ))}
+                            </select>
+
+                            {/*Nút thêm nhanh */}
+                            <button 
+                                type="button"
+                                onClick={handleQuickCreateCategory}
+                                className="bg-green-100 text-green-700 p-2 rounded hover:bg-green-200 transition font-bold whitespace-nowrap"
+                                title="Tạo danh mục mới"
+                            >
+                                + Thêm mới
+                            </button>
+                        </div>
                     </div>
-
-                    {/* KHU VỰC NHẬP NHIỀU ẢNH (DYNAMIC LIST) */}
+                    
+                    {/* --- KHU VỰC UPLOAD ẢNH --- */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Hình ảnh sản phẩm (URL)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Hình ảnh sản phẩm
+                        </label>
                         
-                        <div className="space-y-3">
-                            {formData.images.map((imgUrl, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                    {/* Input Link */}
-                                    <div className="flex-1">
-                                        <div className="flex items-center border rounded focus-within:ring-2 focus-within:ring-blue-500 bg-white overflow-hidden">
-                                            <div className="pl-3 text-gray-400">
-                                                <ImageIcon size={18} />
-                                            </div>
-                                            <input 
-                                                // Tạo ID duy nhất cho mỗi dòng để không bị lỗi Accessibility
-                                                id={`product-image-${index}`} 
-                                                aria-label={`Link ảnh số ${index + 1}`}
-                                                
-                                                type="url" 
-                                                placeholder="https://..."
-                                                className="w-full p-2 outline-none"
-                                                value={imgUrl}
-                                                onChange={(e) => handleImageChange(index, e.target.value)}
-                                            />
-                                        </div>
-                                        {/* Preview ảnh nhỏ ngay dưới input */}
-                                        {imgUrl && (
-                                            <img 
-                                                src={imgUrl} 
-                                                alt="Preview" 
-                                                className="mt-2 h-20 w-20 object-cover rounded border"
-                                                onError={(e) => (e.currentTarget.style.display = 'none')}
-                                            />
-                                        )}
-                                    </div>
-
-                                    {/* Nút Xóa (Chỉ hiện nếu có nhiều hơn 1 dòng hoặc dòng đó có chữ) */}
-                                    <button 
+                        {/* Danh sách ảnh đã có */}
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4">
+                            {formData.images.map((img, index) => (
+                                <div key={index} className="relative group border rounded-lg overflow-hidden h-24 bg-gray-50">
+                                    <img 
+                                        src={img} 
+                                        alt={`Product ${index}`} 
+                                        className="w-full h-full object-contain"
+                                    />
+                                    {/* Nút xóa ảnh */}
+                                    <button
                                         type="button"
-                                        onClick={() => removeImageField(index)}
-                                        className="p-2 text-red-500 hover:bg-red-50 rounded transition"
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow-sm"
                                         title="Xóa ảnh này"
                                     >
-                                        <Trash2 size={20} />
+                                        <X size={12} />
                                     </button>
                                 </div>
                             ))}
-                        </div>
 
-                        {/* Nút Thêm dòng mới */}
-                        <button 
-                            type="button"
-                            onClick={addImageField}
-                            className="mt-3 text-sm flex items-center gap-1 text-blue-600 font-bold hover:underline"
-                        >
-                            <Plus size={16} /> Thêm ảnh khác
-                        </button>
+                            {/* Nút Upload */}
+                            <label className="border-2 border-dashed border-gray-300 rounded-lg h-24 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition text-gray-400 hover:text-blue-500">
+                                {isUploading ? (
+                                    <Loader2 className="animate-spin" />
+                                ) : (
+                                    <>
+                                        <Upload size={24} />
+                                        <span className="text-xs mt-1 font-medium">Thêm ảnh</span>
+                                    </>
+                                )}
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    className="hidden"
+                                    disabled={isUploading}
+                                    onChange={handleFileUpload}
+                                />
+                            </label>
+                        </div>
+                        <p className="text-xs text-gray-500">Hỗ trợ: JPG, PNG, WEBP (Tối đa 5MB)</p>
                     </div>
 
                     <div>

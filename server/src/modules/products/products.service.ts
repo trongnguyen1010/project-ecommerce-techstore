@@ -22,17 +22,49 @@ export class ProductsService {
     });
   }
 
-  // Logic lấy all (Có thể lọc theo categoryId nếu muốn)
-  async findAll(categoryId? : number, search?: string) {
-    return await this.prisma.product.findMany({
-      where: {
-        isDeleted: false,
-        categoryId: categoryId ? categoryId : undefined ,
-        name: search ? { contains: search, mode: 'insensitive' } : undefined,
+  // // Logic lấy all (Có thể lọc theo categoryId nếu muốn)
+  // async findAll(categoryId? : number, search?: string) {
+  //   return await this.prisma.product.findMany({
+  //     where: {
+  //       isDeleted: false,
+  //       categoryId: categoryId ? categoryId : undefined ,
+  //       name: search ? { contains: search, mode: 'insensitive' } : undefined,
+  //     },
+  //     include: { category: true }, // Lấy kèm tên danh mục
+  //     orderBy: {createdAt: 'desc' } // sản phẩm mới trước
+  //   });
+  // }
+
+  async findAll(categoryId?: number, search?: string, page: number = 1, limit: number = 12) {
+    const skip = (page - 1) * limit; // Tính số lượng cần bỏ qua
+
+    // Điều kiện lọc
+    const where: any = {
+      isDeleted: false,
+      categoryId: categoryId ? categoryId : undefined,
+      name: search ? { contains: search, mode: 'insensitive' } : undefined,
+    };
+
+    // Dùng $transaction để chạy song song lấy data và Đếm tổng số
+    const [data, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        where,
+        include: { category: true },
+        orderBy: { createdAt: 'desc' },
+        skip: skip,     // Bỏ qua
+        take: limit,    //Lấy bao nhiêu
+      }),
+      this.prisma.product.count({ where }), // Đếm tổng thoả mãn điều kiện
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        last_page: Math.ceil(total / limit),
       },
-      include: { category: true }, // Lấy kèm tên danh mục
-      orderBy: {createdAt: 'desc' } // sản phẩm mới trước
-    });
+    };
   }
 
   // Logic lấy 1 cái

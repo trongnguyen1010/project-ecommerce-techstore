@@ -19,18 +19,21 @@ export class ProductsController {
   @Get()
   findAll(
     @Query('category') categoryId?: string,
-    @Query('search') search?: string //thêm tham số search
+    @Query('search') search?: string,
+    @Query('page') page?: string, 
   ) {
     return this.productsService.findAll(
       categoryId ? +categoryId : undefined,
-      search //Truyền vào service
+      search,
+      page ? +page : 1, // Truyền vào service (Mặc định trang 1)
+      20 // default 20/page
     );
   }
 
   // XEM CHI TIẾT (Ai cũng xem được)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id); // dấu cộng (+) để ép kiểu thành số
+    return this.productsService.findOne(+id);
   }
 
   // CẬP NHẬT SẢN PHẨM (Chỉ Admin)

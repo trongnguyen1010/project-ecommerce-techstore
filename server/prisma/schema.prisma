@@ -21,6 +21,8 @@ model User {
   orders    Order[]   // 1 người có nhiều đơn hàng
   addresses Address[] // 1 người có nhiều địa chỉ
   
+  cart      Cart? // user có thể có hoặc chưa có Cart
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -39,7 +41,7 @@ model Address {
   createdAt DateTime @default(now())
 }
 
-// 3. Bảng Sản phẩm 
+//Bảng Sản phẩm 
 model Product {
   id          Int      @id @default(autoincrement())
   name        String
@@ -52,6 +54,7 @@ model Product {
   category    Category @relation(fields: [categoryId], references: [id])
   
   orderItems  OrderItem[] // Liên kết ngược để biết SP nằm trong đơn nào
+  cartItems   CartItem[]
 
   isDeleted   Boolean  @default(false)
 
@@ -59,7 +62,7 @@ model Product {
   updatedAt   DateTime @updatedAt
 }
 
-// 4. Bảng Danh mục (Giữ nguyên)
+// Bảng Danh mục (Giữ nguyên)
 model Category {
   id        Int       @id @default(autoincrement())
   name      String
@@ -68,7 +71,7 @@ model Category {
   updatedAt DateTime  @updatedAt
 }
 
-// 5. Bảng Đơn hàng
+//Bảng Đơn hàng
 model Order {
   id          Int      @id @default(autoincrement())
   
@@ -90,7 +93,7 @@ model Order {
   updatedAt   DateTime @updatedAt
 }
 
-// 6. Bảng Chi tiết đơn hàng (Lưu từng món trong giỏ)
+//Bảng Chi tiết đơn hàng (Lưu từng món trong giỏ)
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int
@@ -102,4 +105,32 @@ model OrderItem {
   quantity  Int
   price     Decimal @db.Decimal(10, 2) // Giá tại thời điểm mua
   
+}
+
+// Thêm bảng Giỏ hàng
+model Cart {
+  id        Int      @id @default(autoincrement())
+  
+  userId    Int      @unique // 1 User chỉ có 1 Cart
+  user      User     @relation(fields: [userId], references: [id])
+  
+  items     CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Thêm bảng Item trong giỏ (Khác OrderItem)
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  
+  createdAt DateTime @default(now())
 }
