@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-});
+import { api } from './index'; 
 
 // Xóa sản phẩm (Soft Delete)
 export const deleteProduct = async (token: string, id: number) => {

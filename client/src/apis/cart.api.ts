@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-    baseURL: 'http://localhost:3000',
-});
+import { api } from './index'; 
 
 //Lấy giỏ hàng từ DB
 export const getCart = async (token: string) => {

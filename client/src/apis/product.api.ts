@@ -1,9 +1,4 @@
-import axios from 'axios';
-
-// Cấu hình đường dẫn gốc của Backend
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-});
+import { api } from './index'; 
 
 // Định nghĩa kiểu dữ liệu cho Product (TypeScript)
 export interface Product {

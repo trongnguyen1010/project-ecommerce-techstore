@@ -1,9 +1,5 @@
-import axios from 'axios';
+import { api } from './index'; 
 
-// Cấu hình axios (Sau này đổi port 3000 thành domain thật chỉ cần sửa 1 chỗ này)
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-});
 
 // Hàm gọi API đặt hàng
 export const createOrder = async (orderData: any) => {

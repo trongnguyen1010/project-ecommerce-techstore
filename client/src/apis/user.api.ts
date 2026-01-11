@@ -1,8 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'http://localhost:3000',
-});
+import { api } from './index'; 
 
 //API Cập nhật thông tin (Tên, SĐT)
 export const updateProfile = async (token: string, data: { fullName: string; phone: string }) => {
