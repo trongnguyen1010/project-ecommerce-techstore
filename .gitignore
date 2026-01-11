@@ -1,0 +1,23 @@
+# Dependency (Thư viện tải về - Rất nặng, không đẩy lên)
+node_modules/
+
+# Production build (File sau khi build xong)
+dist/
+build/
+
+# Environment variables (File chứa mật khẩu/cấu hình - Cực quan trọng)
+.env
+.env.production
+.env.*
+*.env
+
+# Logs (File ghi lỗi)
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE (File cấu hình của VS Code, Mac...)
+.DS_Store
+.vscode/
+.idea/
