@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import { Toaster } from 'react-hot-toast';
+import Footer from './components/Footer';
 
 // Import Admin Pages & Layout
 import AdminOrdersPage from './pages/admin/AdminOrdersPage';
@@ -26,7 +27,15 @@ function App() {
       <Routes>
 
         {/* --- KHU VỰC KHÁCH HÀNG (Header chung) --- */}
-        <Route element={<> <Header/> <Outlet/> </>}>
+        <Route element={
+          <div className="flex flex-col min-h-screen">
+             <Header/> 
+             <div className="flex-grow"> 
+                <Outlet/> 
+             </div>
+             <Footer/>
+          </div>
+          }>
           <Route path="/" element={<HomePage />} />
           {/* Đường dẫn chi tiết (dấu :id nghĩa là id thay đổi động) */}
           <Route path="/products/:id" element={<ProductDetailPage />} /> 
