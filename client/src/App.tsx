@@ -18,10 +18,12 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminLayout from './layouts/AdminLayout';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import ProfilePage from './pages/ProfilePage';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
     {/* <Header/> */}
       <Toaster position="top-center" reverseOrder={false} />
       <Routes>

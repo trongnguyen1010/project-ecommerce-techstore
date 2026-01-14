@@ -23,7 +23,10 @@ interface CartState {
   syncLocalCartToDB: () => Promise<void>;
 
   totalPrice: () => number;
-  addToCart: (product: any) => Promise<void>;
+  // addToCart: (product: any) => Promise<void>;
+  // update: thêm tham số quantity (mặc định = 1)
+  addToCart: (product: any, quantity?: number) => Promise<void>;
+
   removeFromCart: (itemId: number) => Promise<void>;
   decreaseQuantity: (itemId: number) => Promise<void>;
   clearCart: () => void;
@@ -57,29 +60,31 @@ export const useCartStore = create<CartState>()(
       },
 
       // Logic thêm giỏ hàng (Hybrid)
-      addToCart: async (product) => {
+      //update logic addtocart
+      addToCart: async (product, quantity = 1) => { // Mặc định là 1
+        console.log("Check AddToCart:", product.id, quantity); // 👈
         const { token } = useAuthStore.getState();
         const items = get().items;
 
         //ĐÃ ĐĂNG NHẬP -> GỌI API
         if (token) {
           try {
-            await addToCartAPI(token, product.id, 1); // Mặc định thêm 1
+            await addToCartAPI(token, product.id, quantity);
             toast.success('Đã thêm vào giỏ hàng!');
             await get().fetchCart(); // Tải lại giỏ mới nhất từ DB
           } catch (error) {
             toast.error('Lỗi thêm giỏ hàng');
           }
         } 
-        //CHƯA ĐĂNG NHẬP -> LƯU LOCAL (Như cũ)
+        //CHƯA ĐĂNG NHẬP -> LƯU LOCAL 
         else {
           const existingItem = items.find((i) => i.productId === product.id);
           if (existingItem) {
             const newItems = items.map((i) =>
-              i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i
+              i.productId === product.id ? { ...i, quantity: i.quantity + quantity } : i
             );
             set({ items: newItems });
-            toast.success('Đã tăng số lượng!');
+            toast.success('Đã cập nhật số lượng!');
           } else {
             const newItem = {
               id: Date.now(), // ID tạm
@@ -87,7 +92,7 @@ export const useCartStore = create<CartState>()(
               name: product.name,
               price: Number(product.price),
               images: product.images || [],
-              quantity: 1,
+              quantity: quantity,
             };
             set({ items: [...items, newItem] });
             toast.success('Đã thêm vào giỏ hàng!');
@@ -152,7 +157,7 @@ export const useCartStore = create<CartState>()(
                 addToCartAPI(token, item.productId, item.quantity)
             );
             await Promise.all(promises);
-
+            set({ items: [] }); // Xóa Local sau khi sync xong tránh duplicate
             // đẩy xong tải lại giỏ chuẩn từ DB về
             await get().fetchCart();
             toast.success('Đã đồng bộ giỏ hàng!');
