@@ -2,13 +2,29 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProduct } from '../apis/product.api';
 import { Loader, ArrowLeft, Check, Package, ShoppingBag,
-   Truck, Minus, Plus, Star, ShieldCheck } from 'lucide-react'; 
+   Truck, Minus, Plus, Star, ShieldCheck, 
+   ChevronLeft,
+   ChevronRight} from 'lucide-react'; 
 import { useCartStore } from '../stores/useCartStore';
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 
+// Helper component cho nút cuộn thumbnail
+const SliderButton = ({ onClick, direction, disabled }: { onClick: () => void, direction: 'left' | 'right', disabled: boolean }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`p-1 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition disabled:opacity-30 disabled:cursor-not-allowed
+        ${direction === 'left' ? 'absolute left-0 z-10' : 'absolute right-0 z-10'}
+      `}
+    >
+      {direction === 'left' ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+    </button>
+  );
+
 export default function ProductDetailPage() {
+  
   const { id } = useParams();
   const navigate = useNavigate(); // Hook chuyển trang
   const addToCart = useCartStore((state) => state.addToCart);
@@ -16,6 +32,9 @@ export default function ProductDetailPage() {
   // State mới: Ảnh đang chọn & Số lượng mua
   const [activeImage, setActiveImage] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+
+  // Ref để điều khiển cuộn thumbnail
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Gọi API lấy detail
   const { data: product, isLoading, error } = useQuery({
@@ -34,8 +53,7 @@ export default function ProductDetailPage() {
   // Xử lý Thêm vào giỏ (kèm số lượng)
   const handleAddToCart = () => {
     if (product) {
-         addToCart(product, quantity);
-      // Reset số lượng về 1 sau khi thêm (tuỳ chọn)
+      addToCart(product, quantity);
       setQuantity(1);
     }
   };
@@ -46,6 +64,32 @@ export default function ProductDetailPage() {
       // addToCart(product); // Thêm vào giỏ
       handleAddToCart();
       navigate('/cart');
+    }
+  };
+
+  // --- LOGIC CHUYỂN ẢNH CHÍNH (NEXT / PREV) ---
+  const handleNextImage = () => {
+    if (!product?.images) return;
+    const currentIndex = product.images.indexOf(activeImage);
+    const nextIndex = (currentIndex + 1) % product.images.length; // Loop về đầu nếu hết
+    setActiveImage(product.images[nextIndex]);
+  };
+
+  const handlePrevImage = () => {
+    if (!product?.images) return;
+    const currentIndex = product.images.indexOf(activeImage);
+    const prevIndex = currentIndex === 0 ? product.images.length - 1 : currentIndex - 1; // Loop về cuối nếu ở đầu
+    setActiveImage(product.images[prevIndex]);
+  };
+
+  // --- LOGIC CUỘN THUMBNAIL ---
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 150; // Khoảng cách cuộn mỗi lần bấm
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -62,90 +106,8 @@ export default function ProductDetailPage() {
     </div>
   );
 
-  // return (
-  //   <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-  //     <div className="max-w-5xl mx-auto">
-  //       {/* Nút quay lại */}
-  //       <Link to="/" className="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6 transition">
-  //         <ArrowLeft size={20} className="mr-2" /> Quay lại danh sách
-  //       </Link>
+  const hasMultipleImages = product.images && product.images.length > 1;
 
-  //       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-  //         <div className="grid grid-cols-1 md:grid-cols-2">
-            
-  //           {/* CỘT TRÁI: ẢNH SẢN PHẨM */}
-  //           <div className="p-8 bg-gray-100 flex items-center justify-center">
-  //             <div className="w-full h-[400px] bg-white rounded-xl flex items-center justify-center p-4">
-  //               {product.images && product.images.length > 0 ? (
-  //                 <img 
-  //                   src={product.images[0]} 
-  //                   alt={product.name} 
-  //                   className="w-full h-full object-contain hover:scale-105 transition duration-500" 
-  //                 />
-  //               ) : (
-  //                 <span className="text-gray-400">Không có ảnh</span>
-  //               )}
-  //             </div>
-  //           </div>
-
-  //           {/* CỘT PHẢI: THÔNG TIN */}
-  //           <div className="p-8 md:p-12 flex flex-col justify-center">
-  //             <div className="mb-4">
-  //               <span className="inline-block bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-semibold tracking-wide uppercase">
-  //                 {product.stock > 0 ? 'Còn hàng' : 'Hết hàng'}
-  //               </span>
-  //             </div>
-              
-  //             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-  //               {product.name}
-  //             </h1>
-
-  //             <p className="text-3xl font-bold text-blue-600 mb-6">
-  //               {Number(product.price).toLocaleString('vi-VN')} ₫
-  //             </p>
-
-  //             <div className="prose text-gray-500 mb-8">
-  //               <p>{product.description || "Chưa có mô tả cho sản phẩm này."}</p>
-  //             </div>
-
-  //             {/* Thông tin thêm */}
-  //             <div className="flex items-center gap-6 mb-8 text-sm text-gray-600 border-y py-4">
-  //               <div className="flex items-center gap-2">
-  //                 <Check className="text-green-500" size={18} /> Bảo hành chính hãng
-  //               </div>
-  //               <div className="flex items-center gap-2">
-  //                 <Package className="text-blue-500" size={18} /> Kho: {product.stock}
-  //               </div>
-  //             </div>
-
-  //             {/* KHU VỰC NÚT BẤM (ĐÃ CẬP NHẬT) */}
-  //             <div className="flex flex-col sm:flex-row gap-4 w-full">
-  //               {/* Nút Thêm vào giỏ */}
-  //               <button 
-  //                 disabled={product.stock === 0}
-  //                 onClick={handleAddToCart}
-  //                 className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-4 rounded-xl transition flex items-center justify-center gap-2 border border-blue-200"
-  //               >
-  //                 <ShoppingBag size={20} />
-  //                 Thêm vào giỏ
-  //               </button>
-
-  //               {/* Nút Mua Ngay */}
-  //               <button 
-  //                 disabled={product.stock === 0}
-  //                 onClick={handleBuyNow}
-  //                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-500/30"
-  //               >
-  //                 Mua ngay
-  //               </button>
-  //             </div>
-
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
@@ -165,15 +127,44 @@ export default function ProductDetailPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8">
             
-            {/* --- CỘT TRÁI: GALLERY ẢNH --- */}
+            {/* CỘT TRÁI: GALLERY ẢNH (update nut bam) */}
             <div className="p-6 md:p-8 bg-gray-50/50 flex flex-col gap-4">
               {/* Ảnh chính to */}
               <div className="aspect-square bg-white rounded-xl border flex items-center justify-center p-6 relative group overflow-hidden">
-                <img 
-                  src={activeImage || product.images?.[0]} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" 
-                />
+                <AnimatePresence mode="wait">
+                  <motion.img 
+                    key={activeImage} // Key thay đổi để kích hoạt animation
+                    src={activeImage || product.images?.[0]} 
+                    alt={product.name}
+                    
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    
+                    className="w-full h-full object-contain mix-blend-multiply" 
+                  />
+                </AnimatePresence>
+
+
+                {/* Nút Next/Prev trên ảnh chính (Chỉ hiện khi hover và có nhiều ảnh) */}
+                {hasMultipleImages && (
+                  <>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all transform hover:scale-110"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+
                 {product.stock === 0 && (
                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
                      <span className="text-white font-bold text-2xl border-2 border-white px-6 py-2 -rotate-12">HẾT HÀNG</span>
@@ -182,20 +173,45 @@ export default function ProductDetailPage() {
               </div>
 
               {/* List ảnh nhỏ (Thumbnail) */}
-              {product.images && product.images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                  {product.images.map((img, index) => (
-                    <button 
-                      key={index}
-                      onClick={() => setActiveImage(img)}
-                      className={`w-20 h-20 flex-shrink-0 bg-white rounded-lg border-2 overflow-hidden p-1 transition-all
-                        ${activeImage === img ? 'border-blue-600 opacity-100' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-300'}`}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-contain mix-blend-multiply" />
-                    </button>
-                  ))}
+               {hasMultipleImages && (
+                <div className="relative flex items-center px-8"> {/* Padding 2 bên để chừa chỗ cho nút */}
+                  
+                  {/* Nút lùi */}
+                  <button 
+                    onClick={() => scrollThumbnails('left')}
+                    className="absolute left-0 z-10 p-1.5 rounded-full bg-white border shadow-sm hover:bg-gray-50 text-gray-600 transition"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  {/* Container chứa ảnh (Ẩn scrollbar) */}
+                  <div 
+                    ref={scrollRef}
+                    className="flex gap-3 overflow-x-auto scrollbar-hide scroll-smooth w-full px-1"
+                  >
+                    {product.images.map((img, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => setActiveImage(img)}
+                        className={`w-20 h-20 flex-shrink-0 bg-white rounded-lg border-2 overflow-hidden p-1 transition-all relative
+                          ${activeImage === img ? 'border-blue-600 opacity-100 ring-2 ring-blue-100' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-300'}
+                        `}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-contain mix-blend-multiply" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Nút tiến */}
+                  <button 
+                    onClick={() => scrollThumbnails('right')}
+                    className="absolute right-0 z-10 p-1.5 rounded-full bg-white border shadow-sm hover:bg-gray-50 text-gray-600 transition"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
                 </div>
               )}
+
             </div>
 
             {/* --- CỘT PHẢI: THÔNG TIN CHI TIẾT --- */}
