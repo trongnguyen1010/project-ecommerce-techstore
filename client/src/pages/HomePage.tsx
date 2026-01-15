@@ -21,22 +21,30 @@ export default function HomePage() {
   
   const addToCart = useCartStore((state) => state.addToCart);
 
-  // SMOOTH SCROLL (LENIS)
+  // SMOOTH SCROLL (LENIS) - ĐÃ FIX
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.5, 
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Hàm easing
+      duration: 1.5,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
 
+    let rafId: number; // 1. Tạo biến để lưu ID của khung hình
+
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf); // 2. Lưu ID vào biến
     }
-    requestAnimationFrame(raf);
+    
+    rafId = requestAnimationFrame(raf); // 3. Khởi chạy
 
     return () => {
-      lenis.destroy(); 
+      cancelAnimationFrame(rafId); // 4. QUAN TRỌNG: Hủy vòng lặp khi rời trang
+      lenis.destroy();             // 5. Hủy instance Lenis
+      
+      // 6. Trả lại quyền điều khiển cuộn cho trình duyệt (để trang khác cuộn được)
+      document.documentElement.style.scrollBehavior = 'auto'; 
+      document.body.style.overflow = 'auto';
     };
   }, []);
 

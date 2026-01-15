@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { useParams, Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProduct } from '../apis/product.api';
 import { Loader, ArrowLeft, Check, Package, ShoppingBag,
-   Truck, Minus, Plus, Star, ShieldCheck } from 'lucide-react'; // Thêm ShoppingBag
+   Truck, Minus, Plus, Star, ShieldCheck } from 'lucide-react'; 
 import { useCartStore } from '../stores/useCartStore';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
