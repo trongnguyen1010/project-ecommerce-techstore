@@ -16,3 +16,8 @@ export const getMyOrders = async (token: string) => {
   });
   return response.data;
 };
+
+export const getOrderDetail = async (orderId: number) => {
+  const response = await api.get(`/orders/${orderId}`);
+  return response.data;
+};

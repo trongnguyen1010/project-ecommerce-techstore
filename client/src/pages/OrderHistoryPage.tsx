@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, Calendar, ChevronRight, ShoppingBag } from 'lucide-react';
+import { Package, Calendar, ChevronRight, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { getMyOrders } from '../apis/order.api';
 
@@ -129,9 +129,14 @@ export default function OrderHistoryPage() {
                     </div>
 
                     {/* Footer đơn hàng: Nút hành động (nếu cần) */}
-                    {/* <div className="bg-gray-50 p-3 text-right">
-                    <button className="text-blue-600 text-sm font-medium hover:underline">Xem chi tiết</button>
-                    </div> */}
+                    <div className="p-4 border-t bg-gray-50 flex justify-end">
+                        <Link 
+                            to={`/orders/${order.id}`} 
+                            className="flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-4 py-2 rounded-lg transition"
+                        >
+                            Xem chi tiết đơn hàng <ExternalLink size={16} />
+                        </Link>
+                    </div>
                 </div>
                 ))}
             </div>

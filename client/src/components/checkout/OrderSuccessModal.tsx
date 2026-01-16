@@ -29,9 +29,9 @@ export default function OrderSuccessModal({ isOpen, orderId }: Props) {
 
         {/* Khu vực nút bấm */}
         <div className="space-y-3">
-          {/* Nút Xem đơn hàng (Tính năng này tí nữa mình làm sau Auth) */}
+          {/* Nút Xem đơn hàng  */}
           <Link 
-            to={`/order-tracking/${orderId}`} // Tạm thời để link này
+            to={`/orders/${orderId}`} 
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition"
           >
             Xem chi tiết đơn hàng

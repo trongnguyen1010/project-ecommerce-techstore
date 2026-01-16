@@ -19,6 +19,7 @@ import AdminLayout from './layouts/AdminLayout';
 import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import ScrollToTop from './components/ScrollToTop';
+import OrderDetailPage from './pages/OrderDetailPage';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/orders" element={<OrderHistoryPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
 
