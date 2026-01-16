@@ -17,10 +17,11 @@ export default function CartPage() {
 
         {items.length === 0 ? (
           // Giao diện khi giỏ hàng trống
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm border">
-            <div className="mb-4 text-gray-300">
+          <div className="min-h-[60vh] flex flex-col items-center justify-center text-center ">
+            {/* <div className="mb-4 text-gray-300">
                <ShoppingBag size={64} className="mx-auto" />
-            </div>
+            </div> */}
+            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-7359557-6024626.png" alt="Empty" className="w-48 mb-4 opacity-50"/>
             <p className="text-gray-500 text-lg mb-6">Giỏ hàng đang trống trơn...</p>
             <Link to="/" className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
               <ArrowLeft size={20} className="mr-2" /> Quay lại mua sắm
