@@ -18,6 +18,13 @@ export default function RegisterPage() {
     const [error, setError] = useState<React.ReactNode>(null);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
 
+    // HÀM KIỂM TRA SĐT VIỆT NAM (MỚI)
+    const isVietnamesePhoneNumber = (phone: string) => {
+        // Regex: Bắt đầu bằng 0, theo sau là 3,5,7,8,9 và 8 số nữa. Tổng 10 số.
+        const regex = /^(03|05|07|08|09)\d{8}$/;
+        return regex.test(phone);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
@@ -29,6 +36,20 @@ export default function RegisterPage() {
         }
         if (!formData.email && !formData.phone) {
             setError(<>Vui lòng nhập ít nhất <b>Email</b> hoặc <b>Số điện thoại</b>!</>);
+            return;
+        }
+
+        // KIỂM TRA SĐT HỢP LỆ (MỚI)
+        // Logic: Nếu có nhập SĐT thì bắt buộc phải đúng định dạng
+        if (formData.phone && !isVietnamesePhoneNumber(formData.phone)) {
+            setError('Số điện thoại không hợp lệ! (Phải là 10 số, đầu 03, 05, 07, 08, 09)');
+            document.getElementById('phone-input')?.focus();
+            return;
+        }
+
+        //  Kiểm tra độ dài mật khẩu 
+        if (formData.password.length < 6) {
+            setError('Mật khẩu phải có ít nhất 6 ký tự!');
             return;
         }
 
