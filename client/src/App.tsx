@@ -20,6 +20,7 @@ import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import ScrollToTop from './components/ScrollToTop';
 import OrderDetailPage from './pages/OrderDetailPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -64,9 +65,11 @@ function App() {
           <Route path="dashboard" element={<AdminDashboardPage />} />
         </Route>
         
-        <Route path="*" element={<div className="text-center p-10">
-          404 - Trang không tồn tại!</div>} />
-        </Routes>
+        {/* <Route path="*" element={<div className="text-center p-10">
+          404 - Trang không tồn tại!</div>} /> */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+        
     </BrowserRouter>
   );
 }
