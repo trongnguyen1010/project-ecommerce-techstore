@@ -9,6 +9,7 @@ import { useCartStore } from '../stores/useCartStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
+import RelatedProducts from '../components/product/RelatedProducts';
 
 // Helper component cho nút cuộn thumbnail
 const SliderButton = ({ onClick, direction, disabled }: { onClick: () => void, direction: 'left' | 'right', disabled: boolean }) => (
@@ -322,11 +323,18 @@ export default function ProductDetailPage() {
 
         {/* PHẦN MÔ TẢ CHI TIẾT DƯỚI CÙNG */}
         <div className="mt-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-           <h3 className="text-xl font-bold mb-4 border-l-4 border-blue-600 pl-3">Mô tả sản phẩm</h3>
-           <div className="prose max-w-none text-gray-600 whitespace-pre-line">
-              {product.description || "Đang cập nhật nội dung chi tiết..."}
-           </div>
+          <h3 className="text-xl font-bold mb-4 border-l-4 border-blue-600 pl-3">Mô tả sản phẩm</h3>
+          <div className="prose max-w-none text-gray-600 whitespace-pre-line">
+            {product.description || "Đang cập nhật nội dung chi tiết..."}
+          </div>
         </div>
+
+        {product && (
+        <RelatedProducts 
+           categoryId={Number(product.categoryId)} // Hoặc product.category.id tuỳ backend trả về
+           currentProductId={Number(product.id)} 
+        />
+     )}
       </div>
     </div>
   );
