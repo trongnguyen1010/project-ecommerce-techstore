@@ -21,15 +21,17 @@ import ProfilePage from './pages/ProfilePage';
 import ScrollToTop from './components/ScrollToTop';
 import OrderDetailPage from './pages/OrderDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
+import BackToTopButton from './components/BackToTopButton';
 
 function App() {
   return (
     <BrowserRouter>
-      <ScrollToTop />
-    {/* <Header/> */}
+      <ScrollToTop /> {/* reset scroll khi chuyển trang */}
       <Toaster position="top-center" reverseOrder={false} />
+      <BackToTopButton />
+      
+      {/* <Header/> */}
       <Routes>
-
         {/* --- KHU VỰC KHÁCH HÀNG (Header chung) --- */}
         <Route element={
           <div id="main-layout" className="flex flex-col min-h-screen">
