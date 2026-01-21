@@ -6,6 +6,7 @@ import { getCategories, type Category } from '../apis/category.api';
 import { useCartStore } from '../stores/useCartStore';
 import { easeOut, motion } from 'framer-motion';
 import Lenis from 'lenis';
+import HomeSlider from '../components/home/HomeSlider';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -39,8 +40,8 @@ export default function HomePage() {
     rafId = requestAnimationFrame(raf); // 3. Khởi chạy
 
     return () => {
-      cancelAnimationFrame(rafId); // 4. QUAN TRỌNG: Hủy vòng lặp khi rời trang
-      lenis.destroy();             // 5. Hủy instance Lenis
+      cancelAnimationFrame(rafId); // 4.Hủy vòng lặp khi rời trang
+      lenis.destroy();             // 5.Hủy instance Lenis
       
       // 6. Trả lại quyền điều khiển cuộn cho trình duyệt (để trang khác cuộn được)
       document.documentElement.style.scrollBehavior = 'auto'; 
@@ -88,53 +89,10 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
-      
-      {/* --- BANNER QUẢNG CÁO --- */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        className="bg-gradient-to-r from-blue-600 to-blue-500 text-white py-16 px-4 mb-8 relative overflow-hidden"
-      >
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-          <div className="max-w-lg">
-            <motion.h1 
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-5xl font-bold mb-4"
-            >
-              Săn Sale Công Nghệ
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-blue-100 text-lg mb-8"
-            >
-              Nâng cấp thiết bị của bạn với mức giá ưu đãi nhất năm.
-            </motion.p>
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-white text-blue-600 px-8 py-3 rounded-full font-bold hover:bg-gray-100 transition shadow-lg"
-            >
-              Mua ngay
-            </motion.button>
-          </div>
-          {/* Ảnh minh họa */}
-          <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring" }}
-            className="hidden md:block text-[150px] drop-shadow-2xl"
-          >
-            🎁
-          </motion.div>
-        </div>
-        {/* Họa tiết nền trang trí */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-      </motion.div>
+      {/* BANNER SLIDER */}
+      <div className="px-4 pt-6 max-w-7xl mx-auto w-full">
+         <HomeSlider />
+      </div>
 
       <div className="max-w-6xl mx-auto px-4 flex-grow w-full">
         

@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, LogOut, Home } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Home, ImageIcon } from 'lucide-react';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useEffect } from 'react';
 
@@ -25,6 +25,7 @@ export default function AdminLayout() {
         { path: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/admin/products', label: 'Sản phẩm', icon: Package },
         { path: '/admin/orders', label: 'Đơn hàng', icon: ShoppingCart },
+        { path: '/admin/banners', label: 'Banner', icon: ImageIcon },
     ];
 
     return (

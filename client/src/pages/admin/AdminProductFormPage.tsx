@@ -8,6 +8,7 @@ import { getProduct } from '../../apis/product.api';
 import { getCategories, type Category, createCategory } from '../../apis/category.api';
 import toast from 'react-hot-toast';
 import { uploadImage } from '../../apis/upload.api';
+import ImageUpload from '../../components/admin/ImageUpload';
 
 export default function AdminProductFormPage() {
     const { token, user } = useAuthStore();
@@ -62,47 +63,47 @@ export default function AdminProductFormPage() {
     }, [token, id, isEditMode]);
 
 
-    // --- STATE & LOGIC UPLOAD ẢNH MỚI ---
-    const [isUploading, setIsUploading] = useState(false); // State loading khi up ảnh
+    // // --- STATE & LOGIC UPLOAD ẢNH MỚI ---
+    // const [isUploading, setIsUploading] = useState(false); // State loading khi up ảnh
 
-    // Hàm xử lý khi chọn file từ máy tính
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    // // Hàm xử lý khi chọn file từ máy tính
+    // const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const file = e.target.files?.[0];
+    //     if (!file) return;
 
-        // Validate dung lượng (Ví dụ 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error('File quá lớn! Vui lòng chọn ảnh dưới 5MB');
-            return;
-        }
+    //     // Validate dung lượng (Ví dụ 5MB)
+    //     if (file.size > 5 * 1024 * 1024) {
+    //         toast.error('File quá lớn! Vui lòng chọn ảnh dưới 5MB');
+    //         return;
+    //     }
 
-        setIsUploading(true);
-        try {
-            // Gọi API Upload
-            const url = await uploadImage(token!, file);
+    //     setIsUploading(true);
+    //     try {
+    //         // Gọi API Upload
+    //         const url = await uploadImage(token!, file);
             
-            // Thêm URL vừa nhận được vào mảng images
-            setFormData(prev => ({
-                ...prev,
-                images: [...prev.images, url]
-            }));
+    //         // Thêm URL vừa nhận được vào mảng images
+    //         setFormData(prev => ({
+    //             ...prev,
+    //             images: [...prev.images, url]
+    //         }));
             
-            toast.success('Tải ảnh lên thành công!');
-        } catch (error) {
-            console.error(error);
-            toast.error('Lỗi tải ảnh lên (Check server/Cloudinary)');
-        } finally {
-            setIsUploading(false);
-            e.target.value = ''; // Reset input để chọn lại được file cũ nếu muốn
-        }
-    };
+    //         toast.success('Tải ảnh lên thành công!');
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Lỗi tải ảnh lên (Check server/Cloudinary)');
+    //     } finally {
+    //         setIsUploading(false);
+    //         e.target.value = ''; // Reset input để chọn lại được file cũ nếu muốn
+    //     }
+    // };
 
     // Hàm xóa ảnh khỏi danh sách
     const handleRemoveImage = (index: number) => {
         const newImages = formData.images.filter((_, i) => i !== index);
         setFormData({ ...formData, images: newImages });
     };
-    // ------------------------------------
+    // // ------------------------------------
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -148,13 +149,10 @@ export default function AdminProductFormPage() {
         try {
             // 1. Gọi API tạo
             const newCat = await createCategory(token!, newName);
-            
             // 2. Thêm vào danh sách hiện tại
             setCategories([...categories, newCat]);
-            
             // 3. Tự động chọn luôn danh mục vừa tạo
             setFormData({ ...formData, categoryId: String(newCat.id) });
-            
             toast.success(`Đã tạo danh mục: ${newName}`);
         } catch (error) {
             toast.error('Lỗi tạo danh mục!');
@@ -260,9 +258,9 @@ export default function AdminProductFormPage() {
                             {formData.images.map((img, index) => (
                                 <div key={index} className="relative group border rounded-lg overflow-hidden h-24 bg-gray-50">
                                     <img 
-                                        src={img} 
-                                        alt={`Product ${index}`} 
-                                        className="w-full h-full object-contain"
+                                    src={img} 
+                                    alt={`Product ${index}`} 
+                                    className="w-full h-full object-contain"
                                     />
                                     {/* Nút xóa ảnh */}
                                     <button
@@ -277,23 +275,13 @@ export default function AdminProductFormPage() {
                             ))}
 
                             {/* Nút Upload */}
-                            <label className="border-2 border-dashed border-gray-300 rounded-lg h-24 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition text-gray-400 hover:text-blue-500">
-                                {isUploading ? (
-                                    <Loader2 className="animate-spin" />
-                                ) : (
-                                    <>
-                                        <Upload size={24} />
-                                        <span className="text-xs mt-1 font-medium">Thêm ảnh</span>
-                                    </>
-                                )}
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    className="hidden"
-                                    disabled={isUploading}
-                                    onChange={handleFileUpload}
-                                />
-                            </label>
+                            <ImageUpload onUpload={(url) => {
+                                // Khi component con upload xong, nó trả về URL
+                                setFormData(prev => ({
+                                    ...prev,
+                                    images: [...prev.images, url]
+                                }));
+                            }} />
                         </div>
                         <p className="text-xs text-gray-500">Hỗ trợ: JPG, PNG, WEBP (Tối đa 5MB)</p>
                     </div>

@@ -22,6 +22,7 @@ import ScrollToTop from './components/ScrollToTop';
 import OrderDetailPage from './pages/OrderDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 import BackToTopButton from './components/BackToTopButton';
+import AdminBannersPage from './pages/admin/AdminBannersPage';
 
 function App() {
   return (
@@ -63,8 +64,8 @@ function App() {
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="products/new" element={<AdminProductFormPage />} />
           <Route path="products/edit/:id" element={<AdminProductFormPage />} />
-
           <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="banners" element={<AdminBannersPage />} />
         </Route>
         
         {/* <Route path="*" element={<div className="text-center p-10">

@@ -10,6 +10,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { CartModule } from './modules/cart/cart.module';
 import { UsersModule } from './modules/users/users.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { BannersModule } from './modules/banners/banners.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UploadModule } from './modules/upload/upload.module';
     CartModule,
     UsersModule,
     UploadModule,
+    BannersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
