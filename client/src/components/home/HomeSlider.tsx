@@ -117,20 +117,20 @@ export default function HomeSlider() {
         </AnimatePresence>
 
         {/* --- NÚT ĐIỀU HƯỚNG (PREV / NEXT) --- */}
-        {/* Nút Prev: Dính trái, bo góc phải */}
+        {/* Nút Prev */}
         <button 
             onClick={handlePrev}
-            className="absolute top-1/2 left-0 -translate-y-1/2 p-4 bg-black/30 text-white hover:bg-black/70 transition-all duration-300 rounded-r-lg cursor-pointer z-20 group-hover:pl-5"
+            className="absolute top-1/2 left-0 -translate-y-1/2 p-3 pl-1 bg-black/20 text-white/80 hover:text-white hover:bg-black/60 backdrop-blur-sm transition-all duration-300 rounded-r-full cursor-pointer z-20 group-hover:pl-2 hover:shadow-lg"
         >
             <ChevronLeft size={32} strokeWidth={3} />
         </button>
 
-        {/* Nút Next: Dính phải, bo góc trái */}
+        {/* Nút Next */}
         <button 
             onClick={handleNext}
-            className="absolute top-1/2 right-0 -translate-y-1/2 p-4 bg-black/30 text-white hover:bg-black/70 transition-all duration-300 rounded-l-lg cursor-pointer z-20 group-hover:pr-5"
+            className="absolute top-1/2 right-0 -translate-y-1/2 p-3 pr-1 bg-black/20 text-white/80 hover:text-white hover:bg-black/60 backdrop-blur-sm transition-all duration-300 rounded-l-full cursor-pointer z-20 group-hover:pr-2 hover:shadow-lg"
         >
-            <ChevronRight size={32} strokeWidth={3} />
+            <ChevronRight size={32} strokeWidth={2.5} />
         </button>
 
         {/* --- DOTS INDICATORS (DẤU CHẤM TRÒN) --- */}
