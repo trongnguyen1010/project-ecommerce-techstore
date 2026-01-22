@@ -253,6 +253,16 @@ export default function AdminProductFormPage() {
                             Hình ảnh sản phẩm
                         </label>
                         
+                        {/* Upload Component */}
+                        <div className="mb-4">
+                            <ImageUpload onUpload={(newUrls) => 
+                                setFormData(prev => ({
+                                    ...prev,
+                                    images: [...prev.images, ...newUrls]
+                                }))
+                            } />
+                        </div>
+
                         {/* Danh sách ảnh đã có */}
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-4">
                             {formData.images.map((img, index) => (
@@ -273,16 +283,8 @@ export default function AdminProductFormPage() {
                                     </button>
                                 </div>
                             ))}
-
-                            {/* Nút Upload */}
-                            <ImageUpload onUpload={(url) => {
-                                // Khi component con upload xong, nó trả về URL
-                                setFormData(prev => ({
-                                    ...prev,
-                                    images: [...prev.images, url]
-                                }));
-                            }} />
                         </div>
+                        
                         <p className="text-xs text-gray-500">Hỗ trợ: JPG, PNG, WEBP (Tối đa 5MB)</p>
                     </div>
 
