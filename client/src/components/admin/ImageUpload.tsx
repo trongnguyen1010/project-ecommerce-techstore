@@ -24,31 +24,46 @@ export default function ImageUpload({ onUpload, disabled = false }: ImageUploadP
       // Upload song song
       const results = await Promise.allSettled(
         acceptedFiles.map(async (file) => {
+          // 🟢 Validate dung lượng file
           if (file.size > 5 * 1024 * 1024) {
             toast.error(`${file.name} quá lớn (>5MB)`);
             throw new Error('File too large');
           }
 
+          // 🟢 Validate loại file
+          const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+          if (!validTypes.includes(file.type)) {
+            toast.error(`${file.name} không phải file ảnh hợp lệ`);
+            throw new Error('Invalid file type');
+          }
+
           const url = await uploadImage(token!, file);
-          return url;
+          
+          // 🟢 Validate URL trước khi trả về
+          if (!url || typeof url !== 'string' || url.trim() === '') {
+            throw new Error('Invalid image URL returned from server');
+          }
+          
+          return url.trim();
         })
       );
 
       // Lọc những file upload thành công
       results.forEach((result) => {
-        if (result.status === 'fulfilled') {
+        if (result.status === 'fulfilled' && result.value) {
           uploadedUrls.push(result.value);
         }
       });
 
       if (uploadedUrls.length > 0) {
-        // ✅ Chỉ gọi onUpload, để parent component quản lý danh sách
         onUpload(uploadedUrls);
         toast.success(`Tải lên ${uploadedUrls.length} ảnh thành công!`);
+      } else {
+        toast.error('Không có ảnh nào upload thành công!');
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Lỗi tải ảnh lên');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Lỗi tải ảnh lên');
     } finally {
       setIsUploading(false);
     }
@@ -97,8 +112,6 @@ export default function ImageUpload({ onUpload, disabled = false }: ImageUploadP
           </div>
         )}
       </div>
-
-      {/* ❌ Xóa preview ở đây - để parent component quản lý */}
     </div>
   );
 }
