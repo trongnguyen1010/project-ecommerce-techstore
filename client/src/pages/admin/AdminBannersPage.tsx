@@ -93,7 +93,7 @@ export default function AdminBannersPage() {
                     </button>
                   </div>
                 ) : (
-                  <ImageUpload onUpload={(url) => setFormData({...formData, imageUrl: url})} />
+                  <ImageUpload onUpload={(urls) => setFormData({...formData, imageUrl: urls[0]})} />
                 )}
                 <p className="text-xs text-gray-500">Kích thước ảnh: 1920 x 720</p>
              </div>
