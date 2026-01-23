@@ -7,11 +7,14 @@ import { useCartStore } from '../stores/useCartStore';
 import { easeOut, motion } from 'framer-motion';
 import Lenis from 'lenis';
 import HomeSlider from '../components/home/HomeSlider';
+import ProductCard from '../components/product/ProductCard';
+import FlashSale from '../components/home/FlashSale';
+import PolicyBar from '../components/product/PolicyBar';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  
+
   // State bộ lọc
   const [selectedCat, setSelectedCat] = useState<number | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,7 +22,7 @@ export default function HomePage() {
   // State phân trang
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  
+
   const addToCart = useCartStore((state) => state.addToCart);
 
   // SMOOTH SCROLL (LENIS) - ĐÃ FIX
@@ -36,15 +39,15 @@ export default function HomePage() {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf); // 2. Lưu ID vào biến
     }
-    
+
     rafId = requestAnimationFrame(raf); // 3. Khởi chạy
 
     return () => {
       cancelAnimationFrame(rafId); // 4.Hủy vòng lặp khi rời trang
       lenis.destroy();             // 5.Hủy instance Lenis
-      
+
       // 6. Trả lại quyền điều khiển cuộn cho trình duyệt (để trang khác cuộn được)
-      document.documentElement.style.scrollBehavior = 'auto'; 
+      document.documentElement.style.scrollBehavior = 'auto';
       document.body.style.overflow = 'auto';
     };
   }, []);
@@ -64,7 +67,7 @@ export default function HomePage() {
   const fetchProducts = async () => {
     try {
       const response = await getProducts(selectedCat, searchTerm, page);
-      setProducts(response.data); 
+      setProducts(response.data);
       setTotalPages(response.meta.last_page);
     } catch (error) {
       console.error(error);
@@ -72,13 +75,13 @@ export default function HomePage() {
   };
 
   const handleFilterChange = (catId?: number) => {
-      setSelectedCat(catId);
-      setPage(1);
+    setSelectedCat(catId);
+    setPage(1);
   }
-  
+
   const handleSearchChange = (val: string) => {
-      setSearchTerm(val);
-      setPage(1);
+    setSearchTerm(val);
+    setPage(1);
   }
 
   // Cấu hình hiệu ứng
@@ -90,29 +93,41 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       {/* BANNER SLIDER */}
-      <div className="px-4 pt-6 max-w-7xl mx-auto w-full">
-         <HomeSlider />
+      {/* <div className="px-4 pt-6 max-w-7xl mx-auto w-full">
+        <HomeSlider />
+      </div> */}
+      <div className="bg-white pb-4"> {/* Bọc banner trong nền trắng để nối liền với Policy */}
+        <div className="max-w-7xl mx-auto pt-4 px-4">
+            <HomeSlider />
+        </div>
       </div>
+      {/* 1. THANH CAM KẾT (Mới) */}
+      <PolicyBar />
 
-      <div className="max-w-6xl mx-auto px-4 flex-grow w-full">
-        
+      <div className="max-w-6xl mx-auto px-4 flex-grow w-full pb-10">
+      
+      {/* 2. FLASH SALE (Mới) */}
+      <FlashSale />
+
+      {/* <div className="max-w-6xl mx-auto px-4 flex-grow w-full"> */}
+
         {/* --- THANH CÔNG CỤ (Sticky & Animation) --- */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row gap-4 justify-between items-center sticky top-4 z-20"
         >
           {/* Bộ lọc danh mục */}
           <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
-            <button 
-              onClick={() => setSelectedCat(undefined)} 
+            <button
+              onClick={() => setSelectedCat(undefined)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition border
                 ${!selectedCat ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200'}`}
             >
               Tất cả
             </button>
             {categories.map(cat => (
-              <button 
+              <button
                 key={cat.id}
                 onClick={() => handleFilterChange(cat.id)}
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition border
@@ -125,16 +140,16 @@ export default function HomePage() {
 
           {/* Ô tìm kiếm */}
           <div className="relative w-full md:w-80">
-            <input 
-              type="text" 
-              placeholder="Tìm kiếm sản phẩm..." 
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
               className="w-full pl-10 pr-10 py-2 border rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition bg-gray-50 focus:bg-white"
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
             />
             <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
             {searchTerm && (
-              <button 
+              <button
                 onClick={() => setSearchTerm('')}
                 className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
               >
@@ -146,87 +161,44 @@ export default function HomePage() {
 
         {/* --- DANH SÁCH SẢN PHẨM --- */}
         {products.length === 0 ? (
-           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-             <div className="text-6xl mb-4">🔍</div>
-             <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nào phù hợp.</p>
-             <button onClick={() => {setSearchTerm(''); setSelectedCat(undefined)}} className="text-blue-600 font-bold mt-2 hover:underline">
-               Xóa bộ lọc
-             </button>
-           </motion.div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+            <div className="text-6xl mb-4">🔍</div>
+            <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nào phù hợp.</p>
+            <button onClick={() => { setSearchTerm(''); setSelectedCat(undefined) }} className="text-blue-600 font-bold mt-2 hover:underline">
+              Xóa bộ lọc
+            </button>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((product, index) => (
-              <motion.div 
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6 mb-8">
+            {products.map((product) => (
+              <ProductCard
                 key={product.id}
-                // Animation khi cuộn tới
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }} // Chỉ chạy 1 lần, cách mép dưới 50px thì chạy
+                product={product}
                 variants={fadeInUp}
-                className="bg-white rounded-xl shadow-sm border hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden flex flex-col h-full"
-              >
-                
-                {/* Ảnh sản phẩm */}
-                <div className="relative pt-[100%] bg-white overflow-hidden border-b">
-                  <Link to={`/products/${product.id}`}>
-                    <img 
-                      src={product.images?.[0] || 'https://via.placeholder.com/300'} 
-                      alt={product.name}
-                      className="absolute top-0 left-0 w-full h-full object-contain p-4 group-hover:scale-110 transition duration-500"
-                    />
-                  </Link>
-                  {product.stock === 0 && (
-                      <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">Hết hàng</div>
-                  )}
-                </div>
-
-                {/* Thông tin */}
-                <div className="p-4 flex flex-col flex-grow">
-                  <div className="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">
-                    {product.category?.name || 'Tech'}
-                  </div>
-                  <Link to={`/products/${product.id}`} className="font-bold text-gray-800 text-lg mb-1 line-clamp-2 hover:text-blue-600 transition">
-                    {product.name}
-                  </Link>
-                  
-                  <div className="mt-auto pt-4 flex items-center justify-between">
-                    <span className="text-xl font-bold text-blue-600">
-                      {Number(product.price).toLocaleString('vi-VN')} ₫
-                    </span>
-                    <button 
-                      onClick={() => addToCart({ ...product, price: Number(product.price) })}
-                      disabled={product.stock === 0}
-                      className="bg-blue-50 text-blue-600 p-2.5 rounded-full hover:bg-blue-600 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
-                      title="Thêm vào giỏ"
-                    >
-                      <ShoppingCart size={20} />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+              />
             ))}
           </div>
         )}
 
         {/* --- THANH PHÂN TRANG --- */}
         {products.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
             className="flex justify-center items-center gap-4 mt-12 mb-12"
           >
-            <button 
+            <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
               className="p-2 border bg-white rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm"
             >
               <ChevronLeft size={24} />
             </button>
-            
+
             <span className="font-bold text-gray-700 bg-white px-4 py-2 rounded-full shadow-sm border">
               Trang {page} / {totalPages}
             </span>
 
-            <button 
+            <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
               className="p-2 border bg-white rounded-full hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-sm"
