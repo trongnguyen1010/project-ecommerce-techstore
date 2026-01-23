@@ -107,9 +107,7 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto px-4 flex-grow w-full pb-10">
       
       {/* 2. FLASH SALE (Mới) */}
-      <FlashSale />
-
-      {/* <div className="max-w-6xl mx-auto px-4 flex-grow w-full"> */}
+      {/* <FlashSale /> */}
 
         {/* --- THANH CÔNG CỤ (Sticky & Animation) --- */}
         <motion.div
