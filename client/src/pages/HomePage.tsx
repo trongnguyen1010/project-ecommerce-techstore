@@ -9,7 +9,9 @@ import Lenis from 'lenis';
 import HomeSlider from '../components/home/HomeSlider';
 import ProductCard from '../components/product/ProductCard';
 import FlashSale from '../components/home/FlashSale';
-import PolicyBar from '../components/product/PolicyBar';
+import PolicyBar from '../components/home/PolicyBar';
+import HeroSection from '../components/home/HeroSection';
+import BrandMarquee from '../components/home/BrandMarquee';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -96,12 +98,14 @@ export default function HomePage() {
       {/* <div className="px-4 pt-6 max-w-7xl mx-auto w-full">
         <HomeSlider />
       </div> */}
-      <div className="bg-white pb-4"> {/* Bọc banner trong nền trắng để nối liền với Policy */}
-        <div className="max-w-7xl mx-auto pt-4 px-4">
-            <HomeSlider />
-        </div>
+      <div className="px-4 pt-6 max-w-7xl mx-auto w-full mb-8">
+            {/* <HomeSlider /> */}
+            <HeroSection/>
       </div>
-      {/* 1. THANH CAM KẾT (Mới) */}
+      <div className="bg-white border-y border-gray-100 py-6">
+        <BrandMarquee />
+      </div>
+      {/*THANH CAM KẾT */}
       <PolicyBar />
 
       <div className="max-w-6xl mx-auto px-4 flex-grow w-full pb-10">

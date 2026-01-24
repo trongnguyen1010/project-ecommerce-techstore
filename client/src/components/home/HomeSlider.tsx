@@ -70,7 +70,7 @@ export default function HomeSlider() {
     const currentSlide = slides[current];
 
     return (
-        <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden rounded-2xl mb-10 shadow-2xl group bg-gray-900">
+        <div className="relative h-full w-full overflow-hidden rounded-2xl mb-10 shadow-2xl group bg-gray-900">
         
         {/* --- PHẦN HÌNH ẢNH & NỘI DUNG --- */}
         <AnimatePresence mode='wait'>

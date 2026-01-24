@@ -9,7 +9,7 @@ export default function PolicyBar() {
   ];
 
   return (
-    <div className="bg-white py-6 border-b border-gray-100">
+    <div className="bg-white py-2 border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {policies.map((item, index) => (
