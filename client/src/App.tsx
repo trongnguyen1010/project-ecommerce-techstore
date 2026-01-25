@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { useLocation, Routes, Route, Outlet } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import Header from './components/Header';
@@ -24,28 +25,44 @@ import NotFoundPage from './pages/NotFoundPage';
 import BackToTopButton from './components/BackToTopButton';
 import AdminBannersPage from './pages/admin/AdminBannersPage';
 
+// Wrapper component for Main Layout with Animation
+const MainLayoutWrapper = () => {
+  const location = useLocation();
+  return (
+    <div id="main-layout" className="flex flex-col min-h-screen">
+      <Header />
+      <div className="flex-grow flex flex-col">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="flex-grow flex flex-col"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
 function App() {
   return (
-    <BrowserRouter>
+    <>
       <ScrollToTop /> {/* reset scroll khi chuyển trang */}
       <Toaster position="top-center" reverseOrder={false} />
       <BackToTopButton />
-      
-      {/* <Header/> */}
+
       <Routes>
         {/* --- KHU VỰC KHÁCH HÀNG (Header chung) --- */}
-        <Route element={
-          <div id="main-layout" className="flex flex-col min-h-screen">
-             <Header/> 
-             <div className="flex-grow"> 
-                <Outlet/> 
-             </div>
-             <Footer/>
-          </div>
-          }>
+        <Route element={<MainLayoutWrapper />}>
           <Route path="/" element={<HomePage />} />
           {/* Đường dẫn chi tiết (dấu :id nghĩa là id thay đổi động) */}
-          <Route path="/products/:id" element={<ProductDetailPage />} /> 
+          <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -67,13 +84,12 @@ function App() {
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="banners" element={<AdminBannersPage />} />
         </Route>
-        
+
         {/* <Route path="*" element={<div className="text-center p-10">
           404 - Trang không tồn tại!</div>} /> */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-        
-    </BrowserRouter>
+    </>
   );
 }
 

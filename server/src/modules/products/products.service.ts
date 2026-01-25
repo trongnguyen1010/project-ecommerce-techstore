@@ -6,7 +6,7 @@ import { PrismaService } from '../../prisma/prisma.service'; // Import service v
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // Logic Thêm mới
   async create(createProductDto: CreateProductDto) {
@@ -35,7 +35,15 @@ export class ProductsService {
   //   });
   // }
 
-  async findAll(categoryId?: number, search?: string, page: number = 1, limit: number = 12) {
+  async findAll(
+    categoryId?: number,
+    search?: string,
+    page: number = 1,
+    limit: number = 12,
+    minPrice?: number,
+    maxPrice?: number,
+    sort?: string
+  ) {
     const skip = (page - 1) * limit; // Tính số lượng cần bỏ qua
 
     // Điều kiện lọc
@@ -43,14 +51,26 @@ export class ProductsService {
       isDeleted: false,
       categoryId: categoryId ? categoryId : undefined,
       name: search ? { contains: search, mode: 'insensitive' } : undefined,
+      price: {
+        gte: minPrice, // >= minPrice
+        lte: maxPrice, // <= maxPrice
+      }
     };
+
+    // Xử lý sort
+    let orderBy: any = { createdAt: 'desc' }; // Default: Newest
+    if (sort === 'price_asc') {
+      orderBy = { price: 'asc' };
+    } else if (sort === 'price_desc') {
+      orderBy = { price: 'desc' };
+    }
 
     // Dùng $transaction để chạy song song lấy data và Đếm tổng số
     const [data, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         where,
         include: { category: true },
-        orderBy: { createdAt: 'desc' },
+        orderBy: orderBy,
         skip: skip,     // Bỏ qua
         take: limit,    //Lấy bao nhiêu
       }),
@@ -68,10 +88,10 @@ export class ProductsService {
   }
 
   // Logic lấy 1 cái
-  async findOne(id: number) { 
+  async findOne(id: number) {
     const product = await this.prisma.product.findUnique({
-      where : { id },
-      include : { category: true }, // lay kem tt danh muc
+      where: { id },
+      include: { category: true }, // lay kem tt danh muc
     });
     // console.log(`Đang tìm sản phẩm ID: ${id}`);
     // neu ko tim thay throw error (optional)
@@ -85,19 +105,19 @@ export class ProductsService {
   async update(id: number, updateProductDto: UpdateProductDto) {
     // Kiểm tra tồn tại trước
     await this.findOne(id);
-    
+
     return this.prisma.product.update({
       where: { id },
       data: updateProductDto,
-    }); 
+    });
   }
 
   //Logic xóa, thay vì delete -> update isDeleted = true
   async remove(id: number) {
-    await this.findOne(id); 
+    await this.findOne(id);
     return this.prisma.product.update({
       where: { id },
       data: { isDeleted: true }, // Đánh dấu là đã xóa
-    }); 
+    });
   }
 }

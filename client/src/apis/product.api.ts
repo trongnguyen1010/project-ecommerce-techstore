@@ -1,4 +1,4 @@
-import { api } from './index'; 
+import { api } from './index';
 
 // Định nghĩa kiểu dữ liệu cho Product (TypeScript)
 export interface Product {
@@ -9,25 +9,35 @@ export interface Product {
   stock: number;
   images: string[];
   categoryId: number;
-  category?: { 
+  category?: {
     id: number;
     name: string;
   };
 }
 
 // Hàm gọi API lấy danh sách, cho phép truyền params vào
-export const getProducts = async (categoryId?: number, search?: string, page: number = 1) : Promise<any> => {
+export const getProducts = async (
+  categoryId?: number,
+  search?: string,
+  page: number = 1,
+  minPrice?: number | string,
+  maxPrice?: number | string,
+  sort?: string
+): Promise<any> => {
   const response = await api.get('/products', {
     params: {
       category: categoryId,
       search: search,
       page: page,
+      minPrice,
+      maxPrice,
+      sort,
     }
   });
   return response.data;
 };
 
-export  const getProduct = async (id: number) => {
+export const getProduct = async (id: number) => {
   const response = await api.get<Product>(`/products/${id}`);
   return response.data;
 };

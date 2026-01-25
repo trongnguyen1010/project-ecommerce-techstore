@@ -7,8 +7,8 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
-  
+  constructor(private readonly productsService: ProductsService) { }
+
   // THÊM SẢN PHẨM (Chỉ Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Post()
@@ -20,13 +20,19 @@ export class ProductsController {
   findAll(
     @Query('category') categoryId?: string,
     @Query('search') search?: string,
-    @Query('page') page?: string, 
+    @Query('page') page?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('sort') sort?: string,
   ) {
     return this.productsService.findAll(
       categoryId ? +categoryId : undefined,
       search,
       page ? +page : 1, // Truyền vào service (Mặc định trang 1)
-      20 // default 20/page
+      20, // default 20/page
+      minPrice ? +minPrice : undefined,
+      maxPrice ? +maxPrice : undefined,
+      sort
     );
   }
 

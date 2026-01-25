@@ -6,10 +6,9 @@ import { useAuthStore } from '../stores/useAuthStore';
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const setAuth = useAuthStore((state) => state.login); // Lấy hàm lưu store
-    const location = useLocation(); // Lấy thông tin người dùng đến từ đâu
+    const setAuth = useAuthStore((state) => state.login);
+    const location = useLocation(); 
 
-    // Lấy trang cũ từ state, nếu không có thì mặc định về trang chủ
     const from =
     location.state?.from?.pathname &&
     location.state.from.pathname !== '/login'
@@ -19,9 +18,7 @@ export default function LoginPage() {
     
     const [formData, setFormData] = useState({ identifier: '', password: '' });
     const [error, setError] = useState('');
-    // const [loading, setLoading] = useState(false);
-
-    // State quản lý trạng thái: 'idle' | 'loading' | 'success'
+    
     const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
         
     const handleSubmit = async (e: React.FormEvent) => {
