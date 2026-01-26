@@ -35,6 +35,9 @@ export default function HomePage() {
 
   const addToCart = useCartStore((state) => state.addToCart);
 
+  // State loading
+  const [isLoading, setIsLoading] = useState(false);
+
   // SMOOTH SCROLL (LENIS)
   useEffect(() => {
     const lenis = new Lenis({
@@ -72,12 +75,17 @@ export default function HomePage() {
     return () => clearTimeout(timeout);
   }, [selectedCat, searchTerm, page, filters]); // Re-fetch khi filter đổi
 
-  // Reset scroll khi filter/page đổi
+  // Reset scroll khi filter/page đổi (Scroll Ngay lập tức xuống phần sản phẩm)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    if (productSectionRef.current) {
+      // Chỉ scroll nếu đang ở dưới quá sâu hoặc cần focus lại
+      const top = productSectionRef.current.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top, behavior: 'instant' });
+    }
   }, [selectedCat, searchTerm, page, filters]);
 
   const fetchProducts = async () => {
+    setIsLoading(true);
     try {
       const response = await getProducts(
         selectedCat,
@@ -91,6 +99,8 @@ export default function HomePage() {
       setTotalPages(response.meta.last_page);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,14 +115,6 @@ export default function HomePage() {
   }
 
   const productSectionRef = useRef<HTMLDivElement>(null);
-
-  // Reset scroll khi filter/page đổi (Scroll xuống phần sản phẩm)
-  useEffect(() => {
-    if (productSectionRef.current) {
-      const top = productSectionRef.current.getBoundingClientRect().top + window.scrollY - 100; // Trừ header
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
-  }, [selectedCat, searchTerm, page, filters]);
 
   // Handle advanced filter changes
   const updateFilters = (newFilters: any) => {
@@ -214,7 +216,24 @@ export default function HomePage() {
             </motion.div>
 
             {/* --- DANH SÁCH SẢN PHẨM --- */}
-            {products.length === 0 ? (
+            {isLoading ? (
+              // SKELETON LOADING
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 mb-8">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+                    <div className="aspect-[4/5] bg-gray-200 animate-pulse"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                      <div className="flex justify-between items-center pt-2">
+                        <div className="h-5 bg-gray-200 rounded w-1/3 animate-pulse"></div>
+                        <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : products.length === 0 ? (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 bg-white rounded-xl border border-dashed">
                 <div className="text-4xl mb-4">🔍</div>
                 <p className="text-gray-500 ">Không tìm thấy sản phẩm nào.</p>
