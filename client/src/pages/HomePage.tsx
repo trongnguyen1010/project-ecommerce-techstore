@@ -72,6 +72,11 @@ export default function HomePage() {
     return () => clearTimeout(timeout);
   }, [selectedCat, searchTerm, page, filters]); // Re-fetch khi filter đổi
 
+  // Reset scroll khi filter/page đổi
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [selectedCat, searchTerm, page, filters]);
+
   const fetchProducts = async () => {
     try {
       const response = await getProducts(
@@ -98,6 +103,16 @@ export default function HomePage() {
     setSearchTerm(val);
     setPage(1);
   }
+
+  const productSectionRef = useRef<HTMLDivElement>(null);
+
+  // Reset scroll khi filter/page đổi (Scroll xuống phần sản phẩm)
+  useEffect(() => {
+    if (productSectionRef.current) {
+      const top = productSectionRef.current.getBoundingClientRect().top + window.scrollY - 100; // Trừ header
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }, [selectedCat, searchTerm, page, filters]);
 
   // Handle advanced filter changes
   const updateFilters = (newFilters: any) => {
@@ -128,7 +143,7 @@ export default function HomePage() {
       {/*THANH CAM KẾT */}
       <PolicyBar />
 
-      <div className="max-w-7xl mx-auto px-4 flex-grow w-full pb-10 mt-8">
+      <div ref={productSectionRef} className="max-w-7xl mx-auto px-4 flex-grow w-full pb-10 mt-8">
 
         <div className="flex gap-8 items-start">
           {/* SIDEBAR BỘ LỌC (Desktop: Cột trái, Mobile: Overlay) */}
